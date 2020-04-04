@@ -1,0 +1,12 @@
+.container .title {
+  margin-top: 10px;
+}
+
+.button-group {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.button-group button {
+  margin: 0 10px; 
+}
