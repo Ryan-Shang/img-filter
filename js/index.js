@@ -12,10 +12,10 @@ const app = new Vue({
     isRendered: false
   },
   methods: {
-    selectFile () {
+    selectFile() {
       this.$refs.file.click();
     },
-    getFile () {
+    getFile() {
       if (this.$refs.file.files[0]) {
         this.isRendered = false;
         const file = this.$refs.file.files[0];
@@ -40,18 +40,18 @@ const app = new Vue({
         }
       }
     },
-    downloadImg () {
+    downloadImg() {
       this.screenshot(this.$refs.filterImg).download();
     },
-    showSuccess () {
+    showSuccess() {
       this.isDone = true;
       window.setTimeout(() => { this.isDone = false; }, 3000);
     },
-    showError () {
+    showError() {
       this.isError = true;
       window.setTimeout(() => { this.isError = false; }, 3000);
     },
-    download (url, fullName) {
+    download(url, fullName) {
       const anchor = document.createElement('a')
       anchor.href = url
       anchor.style.display = 'none'
@@ -85,13 +85,34 @@ const app = new Vue({
       //     // this.download(url, `${name}.${format}`)
       //   }
       // }
+    },
+    getFileDataFromUrl(url, fileName, callback) {
+      fetch(url)
+        .then((res) => {
+          return res.blob();
+        })
+        .then((blob) => {
+          let file = new File([blob], fileName, { type: "image/png" });
+          callback(file);
+        });
     }
   },
-  mounted () {
-    this.isPageLoaded = true
-    this.$refs.filterImg.onload = () => {
-      this.screenshot(this.$refs.filterImg);
-      this.$refs.filterImg.onload = null;
-    }
+  mounted() {
+    this.isPageLoaded = true;
+    this.getFileDataFromUrl(this.filterImgSrc, 'origin.png', (file) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        if (e.target.result) {
+          this.originImgSrc = this.filterImgSrc = e.target.result
+          this.$refs.filterImg.onload = () => {
+            this.screenshot(this.$refs.filterImg);
+            this.$refs.filterImg.onload = null;
+          }
+        } else {
+          this.showError();
+        }
+      }
+    });
   }
 })
